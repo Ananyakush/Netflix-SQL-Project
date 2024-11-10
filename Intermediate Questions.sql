@@ -199,35 +199,84 @@ WHERE
  
 -- Combine lists of all movies and 
 -- TV-MA rated shows from the dataset.
-select title, "movie" as type
-from netflix_data
-where type = "movie"
-
-union
-
-select title,"TV-MA" as type
-from netflix_data
-where type = "TV-MA";
+SELECT 
+    title, 'movie' AS type
+FROM
+    netflix_data
+WHERE
+    type = 'movie' 
+UNION SELECT 
+    title, 'TV-MA' AS type
+FROM
+    netflix_data
+WHERE
+    type = 'TV-MA';
 
 -- Display only the first 10 characters of each description.
-select title, left(descriptions,40) as short_description
-from netflix_data;
+SELECT 
+    title, LEFT(descriptions, 40) AS short_description
+FROM
+    netflix_data;
 
 -- Find the average release year for all shows in the dataset.
-select avg(convert(release_year,unsigned)) as release_year
-from netflix_data
-where release_year is not null or release_year != '';
+SELECT 
+    AVG(CONVERT( release_year , UNSIGNED)) AS release_year
+FROM
+    netflix_data
+WHERE
+    release_year IS NOT NULL
+        OR release_year != '';
 
 -- Identify duplicate titles in the dataset.
-select title, count(*) as title_count
-from netflix_data
-group by title
-having count(*)>1;
+SELECT 
+    title, COUNT(*) AS title_count
+FROM
+    netflix_data
+GROUP BY title
+HAVING COUNT(*) > 1;
     
+-- Display the third and fourth most recently added shows.
+SELECT 
+    Title, date_added
+FROM
+    netflix_data
+ORDER BY date_added DESC
+LIMIT 2 OFFSET 2;
 
-    
-    
-    
+-- Display shows where the release year is 
+-- the average release year in the dataset.
+SELECT 
+    title, release_year
+FROM
+    netflix_data
+WHERE
+    release_year = (SELECT 
+            ROUND(AVG(release_year))
+        FROM
+            netflix_data);
+
+-- Identify shows where “Series” is found in the title. 
+SELECT 
+    title
+FROM
+    netflix_data
+WHERE
+    title LIKE '% series %';
+
+-- Count shows grouped by both rating and country.
+SELECT 
+    rating, country, COUNT(show_id)
+FROM
+    netflix_data
+GROUP BY rating , country;
+
+-- Assign a rank to shows ordered by date added. 
+SELECT title, date_added, 
+       ROW_NUMBER() OVER (ORDER BY date_added DESC, title) AS ranks
+FROM netflix_data;
+
+
+   
     
     
     
